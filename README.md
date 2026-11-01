@@ -1,4 +1,4 @@
-# Life Simulator v0.2 — Telegram Mini App
+# BLACK FOXIA — Life Simulator · BFCU
 
 Статический проект HTML/CSS/JavaScript (ES Modules). Для GitHub Pages положите **содержимое** этой папки в корень публичного репозитория, включите Settings → Pages → Deploy from a branch → main / (root), затем настройте BotFather `/setmenubutton` на опубликованный HTTPS URL.
 
