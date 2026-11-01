@@ -57,7 +57,7 @@ const NAV_ICONS = [
 
 export function render(s, tab = 0) {
   $('pageTitle').textContent = s.dead ? 'Конец жизни' : TABS[tab];
-  $('tabs').innerHTML = TABS.map((name,i)=>`<button type="button" class="${i===tab?'selected':''}" data-action="tab" data-value="${i}" aria-label="${name}" ${s.dead?'disabled':''}><span><svg viewBox="0 0 24 24" aria-hidden="true">${NAV_ICONS[i]}</svg></span>${name}</button>`).join('');
+  $('tabs').innerHTML = TABS.map((name,i)=>`<button type="button" class="${i===tab?'selected':''}" data-action="tab" data-value="${i}" ${s.dead?'disabled':''}><span>${TAB_ICONS[i]}</span>${name}</button>`).join('');
   $('content').innerHTML = s.dead ? dead(s) : [home,actions,finances,character,more][tab](s);
 }
 export function modal(title, html) {
