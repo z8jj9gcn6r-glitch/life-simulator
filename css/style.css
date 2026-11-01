@@ -5,3 +5,9 @@
 .speed label{grid-column:1/-1;width:auto;margin:0 0 2px}
 .speed button{min-width:0;width:100%;padding:9px 0;text-align:center;white-space:nowrap}
 @media(max-width:400px){.speed{gap:4px;padding:8px}.speed button{padding:8px 0;font-size:12px}.speed label{width:auto}}
+
+/* Home screen v0.3: centered title, compact profile, no redundant panels. */
+.top{justify-content:center}
+.identity-info{min-width:0;flex:1}
+.identity-info p{font-size:14px;font-weight:400;line-height:1.35;overflow-wrap:anywhere}
+@media(max-width:400px){.identity-info p{font-size:12px}}
