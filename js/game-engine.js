@@ -1,175 +1,34 @@
-import { YEAR_MS, clamp } from './constants.js';
+import { YEAR_MS } from './constants.js';
 import { applyPassive, checkCritical } from './needs.js';
 import { advanceTasks } from './actions.js';
+import { nextLoanEventMs, processLoanPayments } from './economy.js';
 import { save } from './storage.js';
-
-const INTERVAL = YEAR_MS / 24;
-
-const clone = s => JSON.parse(JSON.stringify(s));
-
-function snapshot(s) {
-  const c = clone(s);
-  c.snapshots = [];
-  c.events = [];
-  return c;
+const MAX_ACTIVE_MS=2000;
+export function advance(s,now=Date.now()){
+ if(!s)return;
+ const elapsed=Math.max(0,Math.min(MAX_ACTIVE_MS,now-(s.lastReal||now)));
+ s.lastReal=now;
+ if(s.dead||s.speed===0||typeof document!=='undefined'&&document.visibilityState==='hidden')return;
+ const emit=m=>{s.events.unshift(m);s.events=s.events.slice(0,30);};
+ let remaining=elapsed*s.speed*YEAR_MS/3600000;
+ while(remaining>0&&!s.dead){
+  const lifeEnd=s.lifeLimitYears*YEAR_MS;
+  const nextDue=nextLoanEventMs(s);
+  let step=Math.min(remaining,Math.max(0,lifeEnd-s.gameMs),Math.max(0,nextDue-s.gameMs));
+  if(step>0){
+   if(s.speed>=1)applyPassive(s,step*3600000/(s.speed*YEAR_MS));
+   advanceTasks(s,step,emit,s.speed>=1);
+   s.gameMs+=step;remaining-=step;
+   if(s.speed>=1)checkCritical(s,emit);
+  }
+  if(s.dead)break;
+  if(nextLoanEventMs(s)<=s.gameMs+1){processLoanPayments(s,emit);continue;}
+  if(s.gameMs>=lifeEnd){s.dead=true;emit('Истекло время жизни');break;}
+  if(step<=0)break;
+ }
+ if(s.dead){s.deathAt=s.gameMs;s.speed=0;s.tasks=[];}
+ save(s);
 }
-
-function addSnapshot(s) {
-  if (s.gameMs - s.lastSnapshotGameMs >= INTERVAL) {
-    s.snapshots.push({
-      gameMs: s.gameMs,
-      data: snapshot(s)
-    });
-
-    s.lastSnapshotGameMs = s.gameMs;
-
-    s.snapshots = s.snapshots.filter(
-      x => x.gameMs >= s.gameMs - YEAR_MS * 1.3
-    );
-  }
-}
-
-export function advance(s, now = Date.now()) {
-  if (!s || s.dead) return;
-
-  if (now < s.lastReal) {
-    s.lastReal = now;
-    s.events.unshift('Время устройства изменилось');
-    save(s);
-    return;
-  }
-
-  let remaining = Math.min(
-    now - s.lastReal,
-    365 * 86400000
-  );
-
-  if (!remaining) return;
-
-  const emit = m => {
-    s.events.unshift(m);
-    s.events = s.events.slice(0, 30);
-  };
-
-  while (remaining > 0 && !s.dead) {
-    const step = Math.min(remaining, 60000);
-
-    remaining -= step;
-
-    const gameStep =
-      step * s.speed * YEAR_MS / 3600000;
-
-    if (s.speed > 0) {
-      const allowed = Math.min(
-        gameStep,
-        Math.max(
-          0,
-          s.lifeLimitYears * YEAR_MS - s.gameMs
-        )
-      );
-
-      const effectiveReal = gameStep
-        ? step * allowed / gameStep
-        : 0;
-
-      if (s.speed >= 1) {
-        applyPassive(s, effectiveReal);
-      }
-
-      advanceTasks(
-        s,
-        allowed,
-        emit,
-        s.speed >= 1
-      );
-
-      s.gameMs += allowed;
-
-      if (s.speed >= 1) {
-        checkCritical(s, emit);
-      }
-
-      addSnapshot(s);
-
-      if (
-        s.gameMs >=
-        s.lifeLimitYears * YEAR_MS
-      ) {
-        s.dead = true;
-        emit('Истекло время жизни');
-      }
-    }
-  }
-
-  s.lastReal = now;
-
-  if (s.dead) {
-    s.deathAt = s.gameMs;
-    s.speed = 0;
-  }
-
-  save(s);
-}
-
-export function setSpeed(s, v) {
-  advance(s);
-
-  if (!s.dead) {
-    s.speed = v;
-    s.lastReal = Date.now();
-    save(s);
-  }
-}
-
-export function background(s) {
-  advance(s);
-
-  if (!s.dead && s.speed !== 0) {
-    s.speed = 0.5;
-  }
-
-  s.lastReal = Date.now();
-  save(s);
-}
-
-export function revive(s) {
-  if (!s.dead) return false;
-
-  const target = Math.max(
-    0,
-    s.deathAt - YEAR_MS / 2
-  );
-
-  const match = [...s.snapshots]
-    .reverse()
-    .find(x => x.gameMs <= target);
-
-  if (!match) return false;
-
-  const oldSnapshots = s.snapshots;
-  const data = clone(match.data);
-
-  for (const k of Object.keys(s)) {
-    delete s[k];
-  }
-
-  Object.assign(s, data);
-
-  s.snapshots = oldSnapshots.filter(
-    x => x.gameMs <= s.gameMs
-  );
-
-  s.lastSnapshotGameMs = s.gameMs;
-  s.lastReal = Date.now();
-  s.speed = 0;
-  s.dead = false;
-  s.deathAt = null;
-
-  s.events.unshift(
-    'Воскресение: восстановлено состояние до смерти'
-  );
-
-  save(s);
-
-  return true;
-}
+export function setSpeed(s,v){advance(s);if(!s.dead&&[0,.5,1,2,5,10].includes(v)){s.speed=v;s.lastReal=Date.now();save(s);}}
+export function background(s){if(!s)return;advance(s);s.speed=0;s.lastReal=Date.now();save(s);}
+export function revive(){throw Error('Используйте reviveCharacter из economy.js');}
