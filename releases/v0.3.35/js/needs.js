@@ -1,0 +1,8 @@
+import { NEEDS, RATES, clamp } from './constants.js';
+const THREE_HOURS_MS=10800000;
+export const createNeeds=()=>Array(8).fill(100);
+export const clampNeed=clamp;
+export function changeNeeds(s,changes){if(!Array.isArray(s?.needs))return false;for(const [key,delta] of Object.entries(changes)){const i=Number(key);if(Number.isInteger(i)&&i>=0&&i<8&&Number.isFinite(delta))s.needs[i]=clamp(s.needs[i]+delta);}return true;}
+export function applyPassive(s,realMs){if(!s||s.dead||s.speed<1||realMs<=0)return;const covered=new Set();for(const t of s.tasks||[])for(const k of Object.keys(t.effects||{}))covered.add(Number(k));for(let i=0;i<8;i++)if(!covered.has(i))s.needs[i]=clamp(s.needs[i]-RATES[i]*realMs/THREE_HOURS_MS);}
+export function applyTaskEffects(s,t,fraction){if(!Number.isFinite(fraction)||fraction<=0)return;const changes={};for(const [k,v] of Object.entries(t.effects||{}))changes[k]=v*fraction;changeNeeds(s,changes);}
+export function checkCritical(s,emit){for(let i=0;i<8;i++){if(s.needs[i]<=0&&!s.criticalTriggered[i]){s.criticalTriggered[i]=true;emit('Критическое состояние: '+NEEDS[i]);if(i===2)s.needs[0]=clamp(s.needs[0]-50);if(i===3)s.character.stats.reputation=Math.max(0,s.character.stats.reputation-10);}if(s.needs[i]>0)s.criticalTriggered[i]=false;}if(s.needs[0]<=0){s.dead=true;emit('Смерть: здоровье достигло нуля');}}
