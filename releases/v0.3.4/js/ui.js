@@ -35,7 +35,7 @@ function finances(s) {
 function character(s) {
   const statNames = {strength:'Сила',dexterity:'Ловкость',endurance:'Выносливость',intelligence:'Интеллект',wisdom:'Мудрость',knowledge:'Знания',charisma:'Харизма',reputation:'Репутация'};
   const skillNames = {programming:'Программирование',english:'Английский язык'};
-  return section('Персонаж', `<div class="row"><span>Имя</span><b>${esc(s.character.name)}</b></div><div class="row"><span>Возраст</span><b>${age(s)} ${ageWord(age(s))}</b></div>`) + section('Характеристики', Object.entries(s.character.stats).map(([k,v])=>`<div class="row"><span>${statNames[k] || esc(k)}</span><b>${Number(v)}</b></div>`).join('')) + section('Навыки', Object.entries(s.character.skills).map(([k,v])=>`<div class="row"><span>${skillNames[k] || esc(k)}</span><b>${Number(v)}</b></div>`).join(''));
+  return section('Статистика', `<div class="row"><span>Имя</span><b>${esc(s.character.name)}</b></div><div class="row"><span>Возраст</span><b>${age(s)} ${ageWord(age(s))}</b></div>`) + section('Характеристики', Object.entries(s.character.stats).map(([k,v])=>`<div class="row"><span>${statNames[k] || esc(k)}</span><b>${Number(v)}</b></div>`).join('')) + section('Навыки', Object.entries(s.character.skills).map(([k,v])=>`<div class="row"><span>${skillNames[k] || esc(k)}</span><b>${Number(v)}</b></div>`).join(''));
 }
 function more(s) {
   const left = Math.max(0, s.lifeLimitYears - s.gameMs / YEAR_MS);
@@ -44,7 +44,7 @@ function more(s) {
 function dead(s) {
  const funds=getTotalMoney(s),short=Math.max(0,REVIVE_COST_CENTS-funds);
  const loansRestricted=(s.loans||[]).some(l=>l.restricted);
- return section('ЖИЗНЬ ЗАВЕРШЕНА', `<div class="status"><p>Персонаж ${esc(s.character.name)} умер в возрасте ${age(s)} ${ageWord(age(s))}.</p><p>Воскрешение: <b>${money(REVIVE_COST_CENTS)}</b>.</p><p>Доступно: ${money(funds)}.</p>${short?`<p>Не хватает ${money(short)}. Экстренный кредит BLACK FOX CAPITAL: 48% годовых, 10 игровых лет, комиссия 5%.</p><p>Ориентировочный платёж: ${money(creditPayment(short+Math.ceil(short*.05)))}/игровой месяц.</p>${loansRestricted?'<p>Новый кредит недоступен из-за просрочек.</p>':button('Воскреснуть в кредит', 'revive-credit', '', 'btn primary')}`:button('Воскреснуть за 50 000 $','revive-cash','','btn primary')}<p>${button('Начать новую жизнь','new-life')}</p></div>`);
+ return section('ЖИЗНЬ ЗАВЕРШЕНА', `<div class="status"><p>Статистика ${esc(s.character.name)} умер в возрасте ${age(s)} ${ageWord(age(s))}.</p><p>Воскрешение: <b>${money(REVIVE_COST_CENTS)}</b>.</p><p>Доступно: ${money(funds)}.</p>${short?`<p>Не хватает ${money(short)}. Экстренный кредит BLACK FOX CAPITAL: 48% годовых, 10 игровых лет, комиссия 5%.</p><p>Ориентировочный платёж: ${money(creditPayment(short+Math.ceil(short*.05)))}/игровой месяц.</p>${loansRestricted?'<p>Новый кредит недоступен из-за просрочек.</p>':button('Воскреснуть в кредит', 'revive-credit', '', 'btn primary')}`:button('Воскреснуть за 50 000 $','revive-cash','','btn primary')}<p>${button('Начать новую жизнь','new-life')}</p></div>`);
 }
 
 export function render(s, tab = 0) {
