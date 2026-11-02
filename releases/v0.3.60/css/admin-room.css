@@ -1,0 +1,340 @@
+
+/*
+ * BlackFoxia v0.3.60
+ * Independent Admin Room Theme
+ * Dark classic iOS 6
+ */
+
+/* Основная оболочка */
+
+body.admin-room-mode {
+  background: #171717 !important;
+  color: #f0f0f0;
+}
+
+/* Убираем стандартную синюю шапку целиком. */
+
+body.admin-room-mode > .top {
+  display: none !important;
+}
+
+/* Убираем светлую подложку и внешние отступы. */
+
+body.admin-room-mode > #content {
+  display: block;
+  width: 100%;
+  max-width: none;
+  min-height: calc(100dvh - 90px);
+  margin: 0;
+  padding: 0 0 calc(
+    90px + env(safe-area-inset-bottom)
+  );
+  background: #171717;
+}
+
+/* Отдельная тёмная поверхность страницы. */
+
+body.admin-room-mode .admin500 {
+  width: 100%;
+  min-height: calc(100dvh - 90px);
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: #171717;
+  color: #f1f1f1;
+}
+
+/* Верхняя панель */
+
+body.admin-room-mode .admin500-header {
+  position: relative;
+  min-height: 64px;
+  border-bottom: 2px solid #050505;
+  border-radius: 0;
+  background: linear-gradient(
+    180deg,
+    #444 0%,
+    #292929 45%,
+    #141414 50%,
+    #191919 100%
+  );
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.18),
+    0 2px 6px rgba(0,0,0,.5);
+}
+
+body.admin-room-mode .admin500-back {
+  position: relative;
+  z-index: 1;
+  transition:
+    transform .12s ease,
+    filter .12s ease;
+}
+
+body.admin-room-mode .admin500-header-title {
+  font-weight: 500;
+  letter-spacing: -.2px;
+}
+
+/* Обложка */
+
+body.admin-room-mode .admin500-cover {
+  height: 175px;
+  background:
+    radial-gradient(
+      ellipse at 50% 35%,
+      #292929 0%,
+      #1b1b1b 55%,
+      #101010 100%
+    );
+}
+
+/* Профиль */
+
+body.admin-room-mode .admin500-profile {
+  background: linear-gradient(
+    #484848,
+    #292929 48%,
+    #1b1b1b
+  );
+}
+
+body.admin-room-mode .admin500-avatar {
+  transition:
+    transform .2s ease,
+    box-shadow .2s ease;
+}
+
+body.admin-room-mode .admin500-avatar:active {
+  transform: scale(.97);
+}
+
+/* Статистика */
+
+body.admin-room-mode .admin500-stats {
+  background: linear-gradient(
+    #303030,
+    #181818
+  );
+}
+
+/* Вкладки */
+
+body.admin-room-mode .admin500-tabs {
+  background: linear-gradient(
+    #383838,
+    #222
+  );
+}
+
+body.admin-room-mode .admin500-tab {
+  transition:
+    background .15s ease,
+    box-shadow .15s ease,
+    transform .12s ease,
+    filter .12s ease;
+}
+
+body.admin-room-mode .admin500-tab:active,
+body.admin-room-mode .admin500-back:active {
+  transform: translateY(1px);
+  filter: brightness(.85);
+}
+
+body.admin-room-mode .admin500-tab.selected {
+  background: linear-gradient(
+    #191919,
+    #0d0d0d
+  );
+  box-shadow:
+    inset 0 2px 6px rgba(0,0,0,.8),
+    0 1px rgba(255,255,255,.08);
+}
+
+/* Контент */
+
+body.admin-room-mode .admin500-content {
+  min-height: 360px;
+  background:
+    radial-gradient(
+      ellipse at 50% 0%,
+      #292929 0%,
+      #202020 65%,
+      #171717 100%
+    );
+}
+
+body.admin-room-mode .admin500-empty,
+body.admin-room-mode .admin500-information {
+  animation: admin500-fade-in .2s ease-out;
+}
+
+/* Кнопка демонстрации окон */
+
+body.admin-room-mode .admin500-window-button {
+  display: block;
+  width: calc(100% - 24px);
+  min-height: 48px;
+  margin: 20px 12px;
+  padding: 10px 14px;
+  border: 2px solid #050505;
+  border-radius: 7px;
+  background: linear-gradient(
+    #383838,
+    #222 48%,
+    #111 100%
+  );
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.17),
+    0 2px 3px rgba(0,0,0,.4);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  text-shadow: 0 -1px #000;
+  transition:
+    transform .12s ease,
+    filter .12s ease;
+}
+
+body.admin-room-mode .admin500-window-button:active {
+  transform: translateY(1px);
+  filter: brightness(.8);
+}
+
+/* Собственные модальные окна */
+
+body.admin-room-mode .admin500-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0,0,0,.72);
+  animation: admin500-fade-in .16s ease-out;
+}
+
+body.admin-room-mode .admin500-dialog {
+  width: 100%;
+  max-width: 390px;
+  overflow: hidden;
+  border: 2px solid #050505;
+  border-radius: 11px;
+  background: #222;
+  box-shadow:
+    0 10px 35px rgba(0,0,0,.8),
+    inset 0 1px rgba(255,255,255,.12);
+  color: #eee;
+  animation: admin500-dialog-in .2s ease-out;
+}
+
+body.admin-room-mode .admin500-dialog-header {
+  padding: 15px 18px;
+  border-bottom: 1px solid #050505;
+  background: linear-gradient(
+    #444,
+    #202020
+  );
+}
+
+body.admin-room-mode .admin500-dialog-header h2 {
+  margin: 0;
+  color: #fff;
+  font-size: 19px;
+  text-align: center;
+  text-shadow: 0 -1px #000;
+}
+
+body.admin-room-mode .admin500-dialog-body {
+  padding: 22px 18px;
+  color: #ddd;
+  font-size: 15px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+body.admin-room-mode .admin500-dialog-body p {
+  margin: 0;
+}
+
+body.admin-room-mode .admin500-dialog-footer {
+  padding: 12px 15px 16px;
+  border-top: 1px solid #393939;
+}
+
+body.admin-room-mode .admin500-dialog-button {
+  display: block;
+  width: 100%;
+  min-height: 45px;
+  border: 2px solid #050505;
+  border-radius: 7px;
+  background: linear-gradient(
+    #424242,
+    #242424 50%,
+    #111
+  );
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.16),
+    0 2px 3px rgba(0,0,0,.4);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+body.admin-room-mode .admin500-dialog-button:active {
+  background: linear-gradient(
+    #151515,
+    #333
+  );
+}
+
+/* Анимации */
+
+@keyframes admin500-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes admin500-dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Уважение системных настроек анимации */
+
+@media (prefers-reduced-motion: reduce) {
+  body.admin-room-mode .admin500 *,
+  body.admin-room-mode .admin500-dialog,
+  body.admin-room-mode .admin500-dialog-backdrop {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Мобильная адаптация */
+
+@media (max-width: 380px) {
+  body.admin-room-mode .admin500-header {
+    min-height: 56px;
+  }
+
+  body.admin-room-mode .admin500-cover {
+    height: 150px;
+  }
+
+  body.admin-room-mode .admin500-dialog-backdrop {
+    padding: 12px;
+  }
+}
