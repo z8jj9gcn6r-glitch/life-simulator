@@ -73,6 +73,77 @@ s.biography = Array.isArray(s.biography)
   : [];
 initializeBiography(s);
 return s;}
+export function validateImportedSave(text) {
+  if (typeof text !== 'string' || text.length > 5_000_000) {
+    throw Error('Файл слишком большой или недоступен');
+  }
+
+  let parsed;
+  try {
+    parsed = JSON.parse(text);
+  } catch (_) {
+    throw Error('Файл не содержит корректный JSON');
+  }
+
+  if (!parsed || typeof parsed !== 'object' ||
+      Array.isArray(parsed) ||
+      ![2, 3].includes(parsed.version) ||
+      !parsed.character ||
+      typeof parsed.character.name !== 'string' ||
+      !parsed.character.name.trim() ||
+      parsed.character.name.length > 24 ||
+      !Array.isArray(parsed.needs) ||
+      parsed.needs.length !== 8 ||
+      !parsed.needs.every(v => Number.isFinite(v) && v >= 0 && v <= 100) ||
+      !Array.isArray(parsed.tasks) ||
+      !Number.isSafeInteger(parsed.cashCents) ||
+      parsed.cashCents < 0 ||
+      !Number.isSafeInteger(parsed.bankCents) ||
+      parsed.bankCents < 0 ||
+      !Number.isFinite(parsed.gameMs) ||
+      parsed.gameMs < 0) {
+    throw Error('Файл не соответствует формату сохранения BlackFoxia');
+  }
+
+  return normalize(structuredClone(parsed));
+}
+
+const IMPORT_BACKUP_KEY = 'life-simulator-v02-pre-import';
+
+export function installImportedSave(imported) {
+  const previous = localStorage.getItem(KEY);
+  const previousBackup = localStorage.getItem(IMPORT_BACKUP_KEY);
+
+  try {
+    const json = JSON.stringify(imported);
+
+    if (previous !== null) {
+      localStorage.setItem(IMPORT_BACKUP_KEY, previous);
+      if (localStorage.getItem(IMPORT_BACKUP_KEY) !== previous) {
+        throw Error('Не удалось проверить резервную копию');
+      }
+    }
+    localStorage.setItem(KEY, json);
+    if (localStorage.getItem(KEY) !== json) {
+      throw Error('Не удалось проверить запись');
+    }
+    return true;
+  } catch (error) {
+    try {
+      if (previous === null) localStorage.removeItem(KEY);
+      else localStorage.setItem(KEY, previous);
+      if (previousBackup === null) {
+        localStorage.removeItem(IMPORT_BACKUP_KEY);
+      } else {
+        localStorage.setItem(IMPORT_BACKUP_KEY, previousBackup);
+      }
+    } catch (rollbackError) {
+      console.error('Ошибка отката сохранения:', rollbackError);
+    }
+    throw Error('Не удалось записать сохранение: ' + error.message);
+  }
+}
+
 export function load(){try{const raw=localStorage.getItem(KEY);if(raw)return normalize(JSON.parse(raw));const old=JSON.parse(localStorage.getItem(OLD)||'null');if(old?.name){const s=newState(old.name);s.cashCents=Math.max(0,Math.round((old.balance||0)*100));s.bankCents=Math.max(0,Math.round((old.bank||0)*100));s.gameMs=Math.max(0,old.gameMs||0);return s;}}catch(e){console.warn('Сохранение повреждено:',e)}return null;}
 export function save(s){
 initializeBiography(s);try{localStorage.setItem(KEY,JSON.stringify(s));return true;}catch(e){console.error('Ошибка сохранения:',e);return false;}}

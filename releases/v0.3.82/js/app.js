@@ -1,4 +1,4 @@
-import { newState, load, save, reset, exportSave } from './storage.js';
+import { newState, load, save, reset, exportSave, validateImportedSave, installImportedSave } from './storage.js';
 import {
   setAdminRoomMode,
   adminDialogMarkup
@@ -12,6 +12,8 @@ import { buyItem } from './shop.js';
 import { render, modal, closeModal, toast, nameModal, birthModal, transferModal, confirmResetModal, vacanciesPage, shopPage, propertyPage, onlineCoursesPage, trainingsPage, characterStatsPage, adminRoomPage } from './ui.js';
 
 let state = load();
+let pendingImportedSave = null;
+let importInProgress = false;
 let tab = 0;
 let jobsPage = false;
 let shopOpen = false;
@@ -288,6 +290,51 @@ document.addEventListener('submit', event => {
   }
 });
 
+document.addEventListener('change', async event => {
+  if (event.target.id !== 'bf038-import-file') return;
+
+  const input = event.target;
+  const file = input.files?.[0];
+  input.remove();
+  if (!file) return;
+
+  pendingImportedSave = null;
+
+  try {
+    if (file.size > 5_000_000) {
+      throw Error('Файл больше 5 МБ');
+    }
+
+    const imported = validateImportedSave(await file.text());
+    pendingImportedSave = imported;
+
+    const safeName = imported.character.name.replace(
+      /[&<>"']/g,
+      c => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      }[c])
+    );
+
+    modal(
+      'Восстановить сохранение?',
+      `<p>Персонаж из файла: <b>${safeName}</b></p>
+       <p>Текущий персонаж будет заменён.
+       Перед заменой браузер предложит скачать его резервную копию.</p>
+       <p>Продолжайте только после сохранения резервной копии.</p>
+       <button class="btn primary" data-action="confirm-import-save">
+         Восстановить персонажа
+       </button>
+       <button class="btn" data-action="close">Отмена</button>`
+    );
+  } catch (error) {
+    toast('Импорт отклонён: ' + error.message);
+  }
+});
+
 document.addEventListener('click', event => {
   const btn = event.target.closest('button[data-action]');
   if (!btn || btn.disabled) return;
@@ -304,6 +351,40 @@ document.addEventListener('click', event => {
   if (action === 'reset') { confirmResetModal(); return; }
   if (!state) return;
   if (action === 'export') { exportSave(state); return; }
+
+  if (action === 'import-save') {
+    pendingImportedSave = null;
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.id = 'bf038-import-file';
+    input.accept = '.json,application/json';
+    input.style.display = 'none';
+    document.body.appendChild(input);
+    input.click();
+    return;
+  }
+
+  if (action === 'confirm-import-save') {
+    if (importInProgress) return;
+    if (!pendingImportedSave) {
+      toast('Сначала выберите файл');
+      return;
+    }
+
+    importInProgress = true;
+    try {
+      if (state) exportSave(state);
+      installImportedSave(pendingImportedSave);
+      pendingImportedSave = null;
+      clearNavigation();
+      window.location.reload();
+    } catch (error) {
+      toast(error.message);
+    } finally {
+      importInProgress = false;
+    }
+    return;
+  }
   if (action === 'revive-cash' || action === 'revive-credit') {
     const result=reviveCharacter(state,action==='revive-credit');
     if(result.ok){tab=0;commit();toast('Персонаж воскрес');}else toast(result.message);

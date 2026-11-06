@@ -591,6 +591,7 @@ function more(s) {
     'Сохранение',
     `<div class="actions">
       ${button('Экспорт сохранения', 'export')}
+      ${button('Импорт сохранения', 'import-save')}
       ${button('Начать заново', 'reset')}
     </div>`
   );
