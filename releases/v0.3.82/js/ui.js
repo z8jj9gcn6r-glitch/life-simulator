@@ -185,25 +185,17 @@ function actions(s) {
     ${button('Старт', 'open-trainings', '', 'btn smallbtn')}
   </div>`;
 
-  const shop = `<div class="row">
+  const assets = `<div class="row">
     <div>
-      <b>Магазин</b><br>
-      <small>Товары и покупки</small>
+      <b>Активы</b><br>
+      <small>Магазин и моё имущество</small>
     </div>
     ${button('Открыть', 'open-shop', '', 'btn smallbtn')}
   </div>`;
 
-  const property = `<div class="row">
-    <div>
-      <b>Имущество</b><br>
-      <small>Собственность персонажа</small>
-    </div>
-    ${button('Смотреть', 'open-property', '', 'btn smallbtn')}
-  </div>`;
-
   return section(
     'Действия',
-    work + courses + trainings + other + shop + property
+    work + courses + trainings + other + assets
   );
 }
 
@@ -225,6 +217,66 @@ function shopItemCount(count) {
   if (last === 1) return count + ' товар';
   if (last >= 2 && last <= 4) return count + ' товара';
   return count + ' товаров';
+}
+
+
+export function assetsPage(s, active = 'shop', category = null) {
+  const isProperty = active === 'property';
+
+  const tabs = `<div class="assets-tabs"
+    role="group" aria-label="Раздел активов"
+    style="display:flex;gap:8px;margin-bottom:16px">
+    <button type="button"
+      class="btn ${!isProperty ? 'selected' : ''}"
+      data-action="open-shop"
+      aria-pressed="${!isProperty}"
+      style="flex:1">
+      Магазин
+    </button>
+    <button type="button"
+      class="btn ${isProperty ? 'selected' : ''}"
+      data-action="open-property"
+      aria-pressed="${isProperty}"
+      style="flex:1">
+      Моё имущество
+    </button>
+  </div>`;
+
+  const content = isProperty
+    ? propertyPage(s, category)
+    : shopPage(s, category);
+
+  return `<div class="assets-page">
+    <style>
+      .assets-page .assets-tabs .btn {
+        background: linear-gradient(
+          180deg, #f3f7fc 0%, #cbd8e8 100%
+        );
+        border: 1px solid #a5b9d1;
+        color: #304765;
+        font-weight: 600;
+        transition: background 0.15s ease,
+                    box-shadow 0.15s ease;
+      }
+
+      .assets-page .assets-tabs .btn[aria-pressed="true"] {
+        background: linear-gradient(
+          180deg, #9db5d0 0%, #7796b8 100%
+        );
+        border-color: #58799e;
+        color: #142d4c;
+        box-shadow: inset 0 2px 4px
+          rgba(30, 54, 83, 0.18);
+      }
+
+      .assets-page .assets-tabs .btn:focus-visible {
+        outline: 2px solid #355f91;
+        outline-offset: 2px;
+      }
+    </style>
+    ${tabs}
+    ${content}
+  </div>`;
 }
 
 export function propertyPage(s, category = null) {

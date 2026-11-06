@@ -9,7 +9,7 @@ import { deposit, withdraw, reviveCharacter, repayEarly } from './economy.js';
 import { SPEEDS } from './constants.js';
 import { hire, fire } from './jobs.js';
 import { buyItem } from './shop.js';
-import { render, modal, closeModal, toast, nameModal, birthModal, transferModal, confirmResetModal, vacanciesPage, shopPage, propertyPage, onlineCoursesPage, trainingsPage, characterStatsPage, adminRoomPage } from './ui.js';
+import { render, modal, closeModal, toast, nameModal, birthModal, transferModal, confirmResetModal, vacanciesPage, shopPage, propertyPage, assetsPage, onlineCoursesPage, trainingsPage, characterStatsPage, adminRoomPage } from './ui.js';
 
 let state = load();
 let pendingImportedSave = null;
@@ -216,12 +216,12 @@ function redraw() {
   document.getElementById('content').innerHTML=vacanciesPage();
  }
  if (shopOpen && tab === 1 && !state.dead) {
-  document.getElementById('pageTitle').textContent='Магазин';
-  document.getElementById('content').innerHTML=shopPage(state, shopCategory);
+  document.getElementById('pageTitle').textContent='Активы';
+  document.getElementById('content').innerHTML=assetsPage(state, 'shop', shopCategory);
  }
  if (propertyOpen && tab === 1 && !state.dead) {
-  document.getElementById('pageTitle').textContent='Имущество';
-  document.getElementById('content').innerHTML=propertyPage(state, propertyCategory);
+  document.getElementById('pageTitle').textContent='Активы';
+  document.getElementById('content').innerHTML=assetsPage(state, 'property', propertyCategory);
  }
  if (coursesOpen && tab === 1 && !state.dead) {
   document.getElementById('pageTitle').textContent='Онлайн курсы';
