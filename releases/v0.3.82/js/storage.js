@@ -58,7 +58,7 @@ function normalize(s){if(!s||![2,3].includes(s.version)||!s.character||typeof s.
 s.inventory=Array.isArray(s.inventory)
   ? [...new Set(s.inventory.filter(
       id => typeof id === 'string' &&
-      ['smartphone','laptop','bicycle'].includes(id)
+      ['smartphone','laptop','computer','bicycle'].includes(id)
     ))]
   : [];
 s.autoNeedsEnabled=s.autoNeedsEnabled===true;if(!s.employment||typeof s.employment!=='object')s.employment=null;s.speed=0;s.lastReal=Date.now();s.needs=s.needs.map(v=>Number.isFinite(v)?Math.max(0,Math.min(100,v)):100);s.needs[0]=100;s.needs[7]=100;s.criticalTriggered=Array.isArray(s.criticalTriggered)&&s.criticalTriggered.length===8?s.criticalTriggered:Array(8).fill(false);s.events=Array.isArray(s.events)?s.events.slice(0,30):[];s.loans=Array.isArray(s.loans)?s.loans:[];s.nextLoanId=Number.isSafeInteger(s.nextLoanId)?s.nextLoanId:1;s.creditScore=Number.isFinite(s.creditScore)?Math.max(0,Math.min(100,s.creditScore)):100;s.cashCents=Number.isSafeInteger(s.cashCents)&&s.cashCents>=0?s.cashCents:0;s.bankCents=Number.isSafeInteger(s.bankCents)&&s.bankCents>=0?s.bankCents:0;s.bankInterestEarnedCents=Number.isSafeInteger(s.bankInterestEarnedCents)&&s.bankInterestEarnedCents>=0?s.bankInterestEarnedCents:0;s.bankInterestRemainder=Number.isFinite(s.bankInterestRemainder)&&s.bankInterestRemainder>=0&&s.bankInterestRemainder<1?s.bankInterestRemainder:0;s.gameMs=Number.isFinite(s.gameMs)&&s.gameMs>=0?s.gameMs:0;s.snapshots=undefined;s.lastSnapshotGameMs=undefined;delete s.snapshots;delete s.lastSnapshotGameMs;
